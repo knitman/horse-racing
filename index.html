@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8" />
-<title>PHOTO FINISH</title>
+<title>PHOTO FINISH – Core</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 <style>
 body{
@@ -24,10 +24,6 @@ body{
 class GameScene extends Phaser.Scene {
     constructor(){ super("game"); }
 
-    preload(){
-        this.load.image('horse','horse.png');
-    }
-
     create(){
         this.startX = 150;
         this.finishX = 1000;
@@ -45,24 +41,28 @@ class GameScene extends Phaser.Scene {
             this.add.text(60, y-15, (i+1), {font:'22px Arial', fill:'#fff'});
         }
 
-        // FINISH
+        // FINISH LINE
         let finish = this.add.graphics();
         finish.fillStyle(0xff0000);
         finish.fillRect(this.finishX, 120, 10, 520);
 
-        // HORSES
+        // "Horses" as rectangles
         this.horses = [];
         for(let i=0;i<6;i++){
-            let horse = this.add.image(this.startX, this.lanesY[i], 'horse')
-                .setScale(0.12);
-
-            horse.posX = this.startX;
-            this.horses.push(horse);
+            let rect = this.add.rectangle(
+                this.startX,
+                this.lanesY[i],
+                60,
+                40,
+                Phaser.Display.Color.HSLToColor(i/6,0.7,0.6).color
+            );
+            rect.posX = this.startX;
+            this.horses.push(rect);
         }
 
         // DICE
         this.diceText = this.add.text(550, 60, "", {
-            font:'50px Arial',
+            font:'60px Arial',
             fill:'#fff'
         });
 
@@ -70,16 +70,6 @@ class GameScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-SPACE', ()=> this.rollDice());
         this.input.keyboard.on('keydown-R', ()=> this.resetGame());
-    }
-
-    gallop(horse){
-        this.tweens.add({
-            targets: horse,
-            y: horse.y - 10,
-            yoyo: true,
-            repeat: 2,
-            duration: 80
-        });
     }
 
     rollDice(){
@@ -94,15 +84,13 @@ class GameScene extends Phaser.Scene {
         this.tweens.add({
             targets: horse,
             x: horse.posX,
-            duration: 400
+            duration: 300
         });
-
-        this.gallop(horse);
 
         if(horse.posX >= this.finishX){
             this.winner = dice;
             document.getElementById("msg").innerText =
-                "🏆 Νίκησε το Άλογο " + dice;
+                "🏆 Νίκησε η λωρίδα " + dice;
         }
     }
 
@@ -110,7 +98,6 @@ class GameScene extends Phaser.Scene {
         this.horses.forEach((h,i)=>{
             h.posX = this.startX;
             h.x = this.startX;
-            h.y = this.lanesY[i];
         });
         this.diceText.setText("");
         this.winner = null;
