@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8" />
-<title>PHOTO FINISH – Horses</title>
+<title>PHOTO FINISH – Arcade UI</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 <style>
 body{
@@ -29,10 +29,10 @@ class GameScene extends Phaser.Scene {
     }
 
     create(){
-        this.startX = 150;
-        this.finishX = 1000;
+        this.startX = 120;
+        this.finishX = 880;
 
-        // LANES
+        // ---------- LANES ----------
         this.lanesY = [];
         for(let i=0;i<6;i++){
             let y = 180 + i*80;
@@ -40,17 +40,17 @@ class GameScene extends Phaser.Scene {
 
             let g = this.add.graphics();
             g.fillStyle(0x7a4b20);
-            g.fillRect(100, y-35, 950, 70);
+            g.fillRect(80, y-35, 820, 70);
 
-            this.add.text(60, y-15, (i+1), {font:'22px Arial', fill:'#fff'});
+            this.add.text(40, y-15, (i+1), {font:'22px Arial', fill:'#fff'});
         }
 
-        // FINISH LINE
+        // FINISH
         let finish = this.add.graphics();
         finish.fillStyle(0xff0000);
         finish.fillRect(this.finishX, 120, 10, 520);
 
-        // HORSES (ίδιο PNG σε κάθε lane)
+        // ---------- HORSES ----------
         this.horses = [];
         for(let i=0;i<6;i++){
             let horse = this.add.image(
@@ -63,8 +63,33 @@ class GameScene extends Phaser.Scene {
             this.horses.push(horse);
         }
 
-        // DICE
-        this.diceText = this.add.text(550, 60, "", {
+        // ---------- SCOREBOARD PANEL ----------
+        let panel = this.add.graphics();
+        panel.fillStyle(0x1c1c2e);
+        panel.fillRect(920, 120, 240, 520);
+
+        panel.lineStyle(4, 0xffff00);
+        panel.strokeRect(920, 120, 240, 520);
+
+        this.add.text(965, 140, "ODDS", {
+            font:'28px Arial',
+            fill:'#ffff00'
+        });
+
+        this.scoreTexts = [];
+
+        for(let i=0;i<6;i++){
+            let txt = this.add.text(
+                950,
+                200 + i*60,
+                `Horse ${i+1}   1:1`,
+                {font:'22px Arial', fill:'#fff'}
+            );
+            this.scoreTexts.push(txt);
+        }
+
+        // ---------- DICE ----------
+        this.diceText = this.add.text(500, 60, "", {
             font:'60px Arial',
             fill:'#fff'
         });
@@ -73,6 +98,11 @@ class GameScene extends Phaser.Scene {
 
         this.input.keyboard.on('keydown-SPACE', ()=> this.rollDice());
         this.input.keyboard.on('keydown-R', ()=> this.resetGame());
+    }
+
+    highlightLane(index){
+        this.scoreTexts.forEach(t => t.setColor('#ffffff'));
+        this.scoreTexts[index].setColor('#00ff00');
     }
 
     gallop(horse){
@@ -93,6 +123,8 @@ class GameScene extends Phaser.Scene {
 
         let horse = this.horses[dice-1];
         horse.posX += 110;
+
+        this.highlightLane(dice-1);
 
         this.tweens.add({
             targets: horse,
@@ -115,6 +147,9 @@ class GameScene extends Phaser.Scene {
             h.x = this.startX;
             h.y = this.lanesY[i];
         });
+
+        this.scoreTexts.forEach(t => t.setColor('#ffffff'));
+
         this.diceText.setText("");
         this.winner = null;
         document.getElementById("msg").innerText="";
