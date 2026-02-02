@@ -2,12 +2,12 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8" />
-<title>PHOTO FINISH – Arcade UI</title>
+<title>PHOTO FINISH</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 <style>
 body{
     margin:0;
-    background:#0f0f1f;
+    background:#1e5b2a; /* γρασίδι */
     color:white;
     text-align:center;
     font-family:Arial;
@@ -29,26 +29,42 @@ class GameScene extends Phaser.Scene {
     }
 
     create(){
-        this.startX = 120;
-        this.finishX = 880;
+        this.startX = 140;
+        this.finishX = 1050;
 
-        // ---------- LANES ----------
+        // ---------- TRACK BACKGROUND ----------
+        let grass = this.add.graphics();
+        grass.fillStyle(0x1e5b2a);
+        grass.fillRect(0, 120, 1200, 520);
+
+        // ---------- LANES (χώμα) ----------
         this.lanesY = [];
         for(let i=0;i<6;i++){
-            let y = 180 + i*80;
+            let y = 190 + i*80;
             this.lanesY.push(y);
 
-            let g = this.add.graphics();
-            g.fillStyle(0x7a4b20);
-            g.fillRect(80, y-35, 820, 70);
+            let lane = this.add.graphics();
 
-            this.add.text(40, y-15, (i+1), {font:'22px Arial', fill:'#fff'});
+            // χώμα
+            lane.fillStyle(0xc9a36a);
+            lane.fillRect(100, y-35, 980, 70);
+
+            // επάνω-κάτω σκιές για βάθος
+            lane.fillStyle(0xb68f58);
+            lane.fillRect(100, y-35, 980, 8);
+            lane.fillRect(100, y+27, 980, 8);
+
+            // αριθμός λωρίδας
+            this.add.text(60, y-15, (i+1), {
+                font:'22px Arial',
+                fill:'#ffffff'
+            });
         }
 
-        // FINISH
+        // ---------- FINISH ----------
         let finish = this.add.graphics();
         finish.fillStyle(0xff0000);
-        finish.fillRect(this.finishX, 120, 10, 520);
+        finish.fillRect(this.finishX, 120, 12, 520);
 
         // ---------- HORSES ----------
         this.horses = [];
@@ -57,41 +73,16 @@ class GameScene extends Phaser.Scene {
                 this.startX,
                 this.lanesY[i],
                 'horse'
-            ).setScale(0.12);
+            ).setScale(0.09);
 
             horse.posX = this.startX;
             this.horses.push(horse);
         }
 
-        // ---------- SCOREBOARD PANEL ----------
-        let panel = this.add.graphics();
-        panel.fillStyle(0x1c1c2e);
-        panel.fillRect(920, 120, 240, 520);
-
-        panel.lineStyle(4, 0xffff00);
-        panel.strokeRect(920, 120, 240, 520);
-
-        this.add.text(965, 140, "ODDS", {
-            font:'28px Arial',
-            fill:'#ffff00'
-        });
-
-        this.scoreTexts = [];
-
-        for(let i=0;i<6;i++){
-            let txt = this.add.text(
-                950,
-                200 + i*60,
-                `Horse ${i+1}   1:1`,
-                {font:'22px Arial', fill:'#fff'}
-            );
-            this.scoreTexts.push(txt);
-        }
-
         // ---------- DICE ----------
-        this.diceText = this.add.text(500, 60, "", {
+        this.diceText = this.add.text(560, 60, "", {
             font:'60px Arial',
-            fill:'#fff'
+            fill:'#ffffff'
         });
 
         this.winner = null;
@@ -100,15 +91,10 @@ class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown-R', ()=> this.resetGame());
     }
 
-    highlightLane(index){
-        this.scoreTexts.forEach(t => t.setColor('#ffffff'));
-        this.scoreTexts[index].setColor('#00ff00');
-    }
-
     gallop(horse){
         this.tweens.add({
             targets: horse,
-            y: horse.y - 10,
+            y: horse.y - 8,
             yoyo: true,
             repeat: 2,
             duration: 80
@@ -122,9 +108,7 @@ class GameScene extends Phaser.Scene {
         this.diceText.setText(dice);
 
         let horse = this.horses[dice-1];
-        horse.posX += 110;
-
-        this.highlightLane(dice-1);
+        horse.posX += 120;
 
         this.tweens.add({
             targets: horse,
@@ -147,8 +131,6 @@ class GameScene extends Phaser.Scene {
             h.x = this.startX;
             h.y = this.lanesY[i];
         });
-
-        this.scoreTexts.forEach(t => t.setColor('#ffffff'));
 
         this.diceText.setText("");
         this.winner = null;
