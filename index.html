@@ -2,7 +2,7 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8" />
-<title>PHOTO FINISH – Core</title>
+<title>PHOTO FINISH – Horses</title>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
 <style>
 body{
@@ -23,6 +23,10 @@ body{
 <script>
 class GameScene extends Phaser.Scene {
     constructor(){ super("game"); }
+
+    preload(){
+        this.load.image('horse','horse.png');
+    }
 
     create(){
         this.startX = 150;
@@ -46,18 +50,17 @@ class GameScene extends Phaser.Scene {
         finish.fillStyle(0xff0000);
         finish.fillRect(this.finishX, 120, 10, 520);
 
-        // "Horses" as rectangles
+        // HORSES (ίδιο PNG σε κάθε lane)
         this.horses = [];
         for(let i=0;i<6;i++){
-            let rect = this.add.rectangle(
+            let horse = this.add.image(
                 this.startX,
                 this.lanesY[i],
-                60,
-                40,
-                Phaser.Display.Color.HSLToColor(i/6,0.7,0.6).color
-            );
-            rect.posX = this.startX;
-            this.horses.push(rect);
+                'horse'
+            ).setScale(0.12);
+
+            horse.posX = this.startX;
+            this.horses.push(horse);
         }
 
         // DICE
@@ -72,6 +75,16 @@ class GameScene extends Phaser.Scene {
         this.input.keyboard.on('keydown-R', ()=> this.resetGame());
     }
 
+    gallop(horse){
+        this.tweens.add({
+            targets: horse,
+            y: horse.y - 10,
+            yoyo: true,
+            repeat: 2,
+            duration: 80
+        });
+    }
+
     rollDice(){
         if(this.winner) return;
 
@@ -84,13 +97,15 @@ class GameScene extends Phaser.Scene {
         this.tweens.add({
             targets: horse,
             x: horse.posX,
-            duration: 300
+            duration: 400
         });
+
+        this.gallop(horse);
 
         if(horse.posX >= this.finishX){
             this.winner = dice;
             document.getElementById("msg").innerText =
-                "🏆 Νίκησε η λωρίδα " + dice;
+                "🏆 Νίκησε το Άλογο " + dice;
         }
     }
 
@@ -98,6 +113,7 @@ class GameScene extends Phaser.Scene {
         this.horses.forEach((h,i)=>{
             h.posX = this.startX;
             h.x = this.startX;
+            h.y = this.lanesY[i];
         });
         this.diceText.setText("");
         this.winner = null;
