@@ -7,7 +7,7 @@
 <style>
 body{
     margin:0;
-    background:#1e5b2a; /* γρασίδι */
+    background:#1e5b2a;
     color:white;
     text-align:center;
     font-family:Arial;
@@ -32,29 +32,25 @@ class GameScene extends Phaser.Scene {
         this.startX = 140;
         this.finishX = 1050;
 
-        // ---------- TRACK BACKGROUND ----------
+        // ---------- TRACK ----------
         let grass = this.add.graphics();
         grass.fillStyle(0x1e5b2a);
         grass.fillRect(0, 120, 1200, 520);
 
-        // ---------- LANES (χώμα) ----------
+        // ---------- LANES ----------
         this.lanesY = [];
         for(let i=0;i<6;i++){
             let y = 190 + i*80;
             this.lanesY.push(y);
 
             let lane = this.add.graphics();
-
-            // χώμα
             lane.fillStyle(0xc9a36a);
             lane.fillRect(100, y-35, 980, 70);
 
-            // επάνω-κάτω σκιές για βάθος
             lane.fillStyle(0xb68f58);
             lane.fillRect(100, y-35, 980, 8);
             lane.fillRect(100, y+27, 980, 8);
 
-            // αριθμός λωρίδας
             this.add.text(60, y-15, (i+1), {
                 font:'22px Arial',
                 fill:'#ffffff'
@@ -66,6 +62,16 @@ class GameScene extends Phaser.Scene {
         finish.fillStyle(0xff0000);
         finish.fillRect(this.finishX, 120, 12, 520);
 
+        // ---------- HORSE COLORS ----------
+        const colors = [
+            0xff3b3b, // κόκκινο
+            0x3b82ff, // μπλε
+            0xffd93b, // κίτρινο
+            0x3bff57, // πράσινο
+            0xff3bf2, // μωβ
+            0xff8c3b  // πορτοκαλί
+        ];
+
         // ---------- HORSES ----------
         this.horses = [];
         for(let i=0;i<6;i++){
@@ -73,7 +79,9 @@ class GameScene extends Phaser.Scene {
                 this.startX,
                 this.lanesY[i],
                 'horse'
-            ).setScale(0.09);
+            )
+            .setScale(0.09)
+            .setTint(colors[i]);
 
             horse.posX = this.startX;
             this.horses.push(horse);
