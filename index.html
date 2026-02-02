@@ -53,8 +53,12 @@ class GameScene extends Phaser.Scene {
         this.horses = [];
         for(let i=0;i<6;i++){
             let horse = this.add.image(this.startX, this.lanesY[i], 'horse')
-                .setScale(0.13)
-                .setTint(Phaser.Display.Color.HSLToColor(i/6,0.8,0.5).color);
+                .setScale(0.13);
+
+            // σωστό χρωμάτισμα χωρίς να χαλάει η διαφάνεια
+            horse.setBlendMode(Phaser.BlendModes.MULTIPLY);
+            let color = Phaser.Display.Color.HSLToColor(i/6,0.8,0.5).color;
+            horse.setTintFill(color);
 
             horse.posX = this.startX;
             this.horses.push(horse);
