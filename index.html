@@ -52,15 +52,23 @@ class GameScene extends Phaser.Scene {
         // ---------- HORSES ----------
         this.horses = [];
         for(let i=0;i<6;i++){
+            let color = Phaser.Display.Color.HSLToColor(i/6,0.9,0.6).color;
+
+            // outline (πίσω)
+            let outline = this.add.image(this.startX-2, this.lanesY[i]+2, 'horse')
+                .setScale(0.14)
+                .setTint(0xffffff)
+                .setAlpha(0.25);
+
+            // κανονικό άλογο (μπροστά)
             let horse = this.add.image(this.startX, this.lanesY[i], 'horse')
-                .setScale(0.13);
+                .setScale(0.13)
+                .setTint(color)
+                .setBlendMode(Phaser.BlendModes.SCREEN);
 
-            // σωστό χρωμάτισμα χωρίς να χαλάει η διαφάνεια
-            horse.setBlendMode(Phaser.BlendModes.MULTIPLY);
-            let color = Phaser.Display.Color.HSLToColor(i/6,0.8,0.5).color;
-            horse.setTintFill(color);
-
+            horse.outline = outline;
             horse.posX = this.startX;
+
             this.horses.push(horse);
         }
 
@@ -100,9 +108,8 @@ class GameScene extends Phaser.Scene {
 
     gallopAnimation(horse){
         this.tweens.add({
-            targets: horse,
-            y: horse.y - 8,
-            scaleY: 0.12,
+            targets: [horse, horse.outline],
+            y: "-=8",
             yoyo: true,
             repeat: 3,
             duration: 90,
@@ -120,7 +127,7 @@ class GameScene extends Phaser.Scene {
         horse.posX += 95;
 
         this.tweens.add({
-            targets: horse,
+            targets: [horse, horse.outline],
             x: horse.posX,
             duration: 500,
             ease: 'Sine.easeInOut'
@@ -140,6 +147,9 @@ class GameScene extends Phaser.Scene {
             h.posX = this.startX;
             h.x = this.startX;
             h.y = this.lanesY[i];
+
+            h.outline.x = this.startX-2;
+            h.outline.y = this.lanesY[i]+2;
         });
         this.diceDots.clear();
         this.winner = null;
